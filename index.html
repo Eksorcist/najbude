@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Slovník hrubých slov a urážek (analytický průvodce)</title>
+  <style>
+    :root{--bg:#f7f7fb;--card:#fff;--muted:#6b6f76;--accent:#1f6feb}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); color:#111; margin:0}
+    header{background:linear-gradient(90deg,#0b254b,#13376f); color:white; padding:36px 20px}
+    .container{max-width:1000px;margin:20px auto;padding:0 16px}
+    h1{margin:0;font-size:28px}
+    p.lead{color:#dbe9ff;margin-top:8px}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin:18px 0;box-shadow:0 6px 20px rgba(16,24,40,0.06)}
+    nav .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#fff;color:#13376f;margin-right:8px;text-decoration:none;border:1px solid rgba(19,55,111,0.08)}
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .entry{border-left:4px solid #e6e9ef;padding:14px;background:#fff;border-radius:10px}
+    .term{font-weight:700;font-size:18px}
+    .severity{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#fff;border:1px solid #eee;margin-left:8px}
+    .redacted{font-weight:900;color:#b90f0f}
+    small.muted{color:var(--muted)}
+    .search{width:100%;padding:10px;border-radius:10px;border:1px solid #e1e5ee}
+    footer{padding:24px;color:var(--muted);font-size:13px;text-align:center}
+    .warning{background:#fff8e1;border-left:4px solid #ffd54f;padding:12px;border-radius:8px}
+    .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#f1f5ff;font-size:13px;margin:4px}
+    .muted-block{color:var(--muted);font-size:13px}
+    form .input, form textarea{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #e1e5ee}
+    .btn-primary{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Slovník hrubých slov, urážek a jejich analýza</h1>
+      <p class="lead">Cílem tohoto webu je poskytnout popisný a kritický přehled vulgarit a urážek v češtině — vysvětlit jejich význam, původ, kontext použití a společenské důsledky. <strong>Explicitní výrazy vůči zranitelným skupinám (např. uprchlíci, imigranti, národnosti) jsou v textu <span style="color:#b90f0f">zabezpečeny</span> nebo nahrazeny, aby se zabránilo šíření nenávisti.</strong></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="card">
+      <a class="btn" href="#slovnik">Slovník</a>
+      <a class="btn" href="#etymologie">Etymologie a historie</a>
+      <a class="btn" href="#sociologie">Sociolingvistika</a>
+      <a class="btn" href="#pravo">Právní rámec</a>
+      <a class="btn" href="#bezpecnost">Dopad a bezpečnost</a>
+    </nav>
+
+    <div class="grid">
+      <section>
+        <article id="intro" class="card">
+          <h2>Obsah a metodika</h2>
+          <p class="muted-block">Stránka kombinuje slovníkové záznamy (term, popis, škála závažnosti), krátké etymologie, příklady užití (redigované) a analýzu společenského dopadu. Materiál je věcný a neospravedlňuje urážlivou komunikaci. Pokud je v textu citován konkrétní urážlivý tvar, je z bezpečnostních důvodů v převážné většině případů částečně skryt (např. <code>[SLUR]*</code> nebo <code>f**k</code>), a v případě výrazů mířících na chráněné skupiny budou tvary explicitně uvedeny jen pokud to vyžaduje akademická přesnost a vždy s kontextem a odsouzením.</p>
+
+          <div class="warning" style="margin-top:12px">
+            <strong>Upozornění:</strong> Text obsahuje citlivé informace o urážlivých slovech a jejich užití. Cílem není šíření nenávisti, ale dokumentace a zvyšování povědomí.
+          </div>
+        </article>
+
+        <article id="slovnik" class="card">
+          <h2>Slovník (výběr) — ukázkové záznamy</h2>
+
+          <div class="entry">
+            <div class="term">[URÁŽKA: <span class="redacted">cizinec‑slur</span>] <span class="severity">Závažnost: vysoká</span></div>
+            <p class="muted-block">Kategorie: urážka na základě národnosti/původu</p>
+            <p>Popis: Jedná se o hanlivý výraz směřovaný proti osobám z konkrétní země nebo etnika. U tohoto termínu jsou explicitní tvary z důvodu bezpečnosti a zákazu šíření nenávistné řeči částečně redigovány.</p>
+            <p><strong>Etymologie:</strong> Slovo má kořeny v historických stereotypech a sociálně-ekonomických tenzích; často vzniká jako lidová adaptace staršího hanlivého označení.</p>
+            <p><strong>Kontext užití:</strong> Používá se v urážlivých komentářích, politické demagogii nebo v projevech xenofobie. Často se vyskytuje v souvislosti s migrační krizí, ekonomickou konkurencí nebo mediální kampaní.</p>
+            <p><strong>Dopad:</strong> Způsobuje stigmatizaci celé skupiny, přispívá k dehumanizaci a zvyšuje riziko verbálního a fyzického násilí vůči cílové skupině.</p>
+            <p><strong>Alternativy / jak reagovat:</strong> Neodpovídat stejným tónem; uvést faktické informace, moderovat diskusi, použít techniky deeskalace nebo nahlásit obsah moderatorům.</p>
+          </div>
+
+          <div class="entry" style="margin-top:12px">
+            <div class="term">[URÁŽKA: <span class="redacted">uprchlík‑pejor</span>] <span class="severity">Závažnost: velmi vysoká</span></div>
+            <p class="muted-block">Kategorie: urážka z hlediska statusu (uprchlík/žadatel o azyl)</p>
+            <p>Popis: Pejorativní označení pro lidi, kteří opustili svou zemi z důvodu válečného konfliktu nebo pronásledování. Je často spojováno s ponižováním, zpochybňováním legitimity jejich potřeby ochrany nebo s obviňováním z ekonomických problémů.</p>
+            <p><strong>Sociální kontext:</strong> V kontextu válečných konfliktů (např. přílivu uprchlíků z konkrétní země) se termín používá jako nástroj politické mobilizace, dehumanizační rétoriky nebo „jinýchování“.</p>
+            <p><strong>Doporučené vystupování:</strong> Používat neutrální terminologii (např. uprchlík, žadatel o azyl), zdůraznit lidskost a právní status, upozornit na riziko stereotypizace.</p>
+          </div>
+
+          <div style="margin-top:14px;" class="muted-block">Poznámka: slovník obsahuje mnoho dalších záznamů — od hrubých slov přecházejících do vulgarity až po jemné nadsázky. Pokud chcete konkrétní termíny pro analýzu, lze je přidat ve formě redigovaných záznamů (volba autora).</div>
+        </article>
+
+        <article id="etymologie" class="card">
+          <h2>Etymologie a historie</h2>
+          <p>Historie urážek často odráží širší společenské vztahy (války, migrace, ekonomické krize). Pro každý pojem je užitečné zaznamenat původ slova, jeho fonetické varianty a to, jak se měnila jeho konotace v průběhu času.</p>
+
+          <ul>
+            <li><strong>Historická vrstva:</strong> některé urážky mají kořeny v dávných jazykových fóliích nebo v regionálních dialektech.</li>
+            <li><strong>Moderní transformace:</strong> sociální sítě a memová kultura akcelerují šíření a mutace vulgarit.</li>
+          </ul>
+        </article>
+
+        <article id="sociologie" class="card">
+          <h2>Sociolingvistická analýza</h2>
+          <p>Vysvětlujeme, proč lidé používají hrubá slova a urážky: signalizace sociální identity, vytváření skupinové koheze, útok/obrana, i snaha o humor. Dále popisujeme funkce — performativní, emotivní, apelativní.</p>
+          <p><strong>Diskurz zaměřený na uprchlíky a imigranty:</strong> zde analyzujeme, jak se jazyk používá k jinýchování: metafory ("vlna", "invaze"), metaforické dehumanizační obrazy, a jak tyto obrazy obživují politické narativy.</p>
+        </article>
+
+        <article id="pravo" class="card">
+          <h2>Právní rámec v ČR</h2>
+          <p>V české legislativě existují ustanovení proti šíření nenávisti a vyzývání k nenávisti vůči skupinám podle rasy, národnosti, náboženství nebo jiné chráněné charakteristiky. Upozorňujeme, kdy může jít o trestný čin (např. publicistické výzvy k nenávisti) a kdy o přestupek.</p>
+          <p class="muted-block">Tento oddíl není právní poradou — pro konkrétní kroky konzultujte právníka nebo orgány činné v trestním řízení.</p>
+        </article>
+
+        <article id="bezpecnost" class="card">
+          <h2>Dopad na cílové skupiny a bezpečnost</h2>
+          <p>Verbální agrese zvyšuje riziko psychického stresu, sociální izolace a může eskalovat ve fyzické útoky. U uprchlíků a imigrantů je riziko zvýšené kvůli jejich zranitelné situaci (jazyková bariéra, právní nejistota).</p>
+          <p> Doporučené postupy pro online platformy a komunity: moderování, rychlé odstraňování obsahu, transparentní reporting, vzdělávací kampaně a podpora obětí.</p>
+        </article>
+
+        <article class="card">
+          <h2>Moderování a návrh funkcí webu</h2>
+          <p>Navrhované technické funkce pro stránku:
+          <ul>
+            <li>Možnost zobrazit termín v redigované a plné (chybějící) formě pouze pro ověřené výzkumníky po schválení.</li>
+            <li>Tagy škodlivosti, škála závažnosti, kontextové varování (content warning).</li>
+            <li>Formulář pro hlášení zneužití a dokumentace případů (bez osobních údajů).</li>
+            <li>Automatické filtry pro komentáře (detekce nenávistných slov, karanténa).</li>
+          </ul></p>
+        </article>
+
+        <article class="card">
+          <h2>Praktické zdroje a odkazy</h2>
+          <p>Kontakty na neziskové organizace, právní pomoc, linky na hotlines, a doporučené akademické práce o jazyce nenávisti a xenofobii. (V reálné verzi lze přidat konkrétní URL a PDF.)</p>
+        </article>
+
+      </section>
+
+      <aside>
+        <div class="card">
+          <h3>Rychlé vyhledávání</h3>
+          <input id="q" class="search" placeholder="Vyhledej pojem nebo téma..." oninput="filter()" />
+          <p class="muted-block" style="margin-top:8px">Použij filtr pro rychlou navigaci v textu. Explicitní slova jsou v záznamech redigována.</p>
+        </div>
+
+        <div class="card">
+          <h3>Kontakt / Nahlásit případ</h3>
+          <form id="reportForm" onsubmit="submitReport(event)">
+            <label>Typ případu</label>
+            <select class="input" id="caseType">
+              <option>Online (komentář)</option>
+              <option>Osobní napadení</option>
+              <option>Medializovaný výrok</option>
+            </select>
+            <label>Krátký popis</label>
+            <textarea id="descr" rows="4" placeholder="Stručně popiš situaci (bez osobních údajů)"></textarea>
+            <button class="btn-primary" type="submit">Odeslat hlášení</button>
+          </form>
+          <p id="reportOk" style="display:none;margin-top:8px;color:green">Hlášení odesláno (lokálně) — v živé verzi by bylo předáno moderátorovi.</p>
+        </div>
+
+        <div class="card">
+          <h3>Označení obsahu</h3>
+          <div class="tag">Vulgarita</div><div class="tag">Xenofobie</div><div class="tag">Právní riziko</div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="card">
+      <h2>Technický kód — jednoduchý prototyp</h2>
+      <p class="muted-block">Níže je jednoduchý JavaScript pro lokální filtrování (bez backendu). V produkčním nasazení doporučujeme server, databázi a moderátorské rozhraní.</p>
+      <pre style="white-space:pre-wrap;background:#f4f6fb;padding:12px;border-radius:8px">// jednoduchý filtr (prototyp)
+function filter(){
+  const q = document.getElementById('q').value.toLowerCase();
+  document.querySelectorAll('.entry').forEach(e=>{
+    const text = e.innerText.toLowerCase();
+    e.style.display = text.includes(q) ? 'block' : 'none';
+  })
+}
+
+function submitReport(e){
+  e.preventDefault();
+  document.getElementById('reportOk').style.display = 'block';
+  setTimeout(()=>document.getElementById('reportOk').style.display='none',4000);
+}
+</pre>
+    </div>
+
+  </main>
+
+  <footer>
+    © Slovník hrubých slov — dokumentační verze. Pokud chcete upravit obsah (např. přidat více položek nebo plné tvary pro akademické účely), napište požadavek.
+  </footer>
+
+  <script>
+    // připojit interakce
+    window.filter = function(){
+      const q = document.getElementById('q').value.toLowerCase();
+      document.querySelectorAll('.entry').forEach(e=>{
+        const text = e.innerText.toLowerCase();
+        e.style.display = text.includes(q) ? 'block' : 'none';
+      })
+    }
+    window.submitReport = function(e){
+      e.preventDefault();
+      document.getElementById('reportOk').style.display = 'block';
+      setTimeout(()=>document.getElementById('reportOk').style.display='none',4000);
+    }
+  </script>
+</body>
+</html>

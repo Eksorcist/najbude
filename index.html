@@ -96,7 +96,7 @@ label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
   <div class="tabs">
     <button class="tab active" onclick="showTab('day')" type="button">День</button>
     <button class="tab" onclick="showTab('food')" type="button">Еда</button>
-    <button class="tab" onclick="showTab('cake')" type="button">Пирог</button>
+    <button class="tab" onclick="showTab('cake')" type="button">Выпечка</button>
     <button class="tab" onclick="showTab('other')" type="button">Другое</button>
   </div>
 </header>
@@ -165,7 +165,7 @@ label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
 <section id="cake" class="screen">
   <div class="grid">
     <div class="card">
-      <h2>Пирог</h2>
+      <h2>Выпечка</h2>
       <div class="row3">
         <div><label>Яйца, шт</label><input id="cakeEggs" type="number" value="4" min="0" step="1" oninput="updateCake()"></div>
         <div><label>Мука, г</label><input id="cakeFlour" type="number" value="160" min="0" step="1" oninput="updateCake()"></div>
@@ -184,10 +184,12 @@ label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
         <div><label>Кому</label><select id="cakeMode" onchange="updateCake()"><option value="lesha">Лёше</option><option value="anya">Ане</option><option value="both_each" selected>Обоим: каждому</option><option value="both_split">Обоим: пополам</option></select></div>
         <div><label>Сколько кусков</label><input id="cakeEat" type="number" value="1" min="0" step="0.5" oninput="updateCake()"></div>
       </div>
-      <div class="preview"><div class="metric"><b id="cakeTotal">—</b><span>весь пирог</span></div><div class="metric"><b id="cakeOne">—</b><span>1 кусок</span></div></div>
+      <div class="preview"><div class="metric"><b id="cakeTotal">—</b><span>вся Выпечка
+      
+      </span></div><div class="metric"><b id="cakeOne">—</b><span>1 кусок</span></div></div>
       <div class="preview"><div class="metric"><b id="cakeAdd">—</b><span>к добавлению</span></div><div class="metric"><b id="cakeMacro">—</b><span>Б / Ж / У</span></div></div>
       <div id="cakeLines" style="margin-top:10px"></div>
-      <button type="button" onclick="addCake()" style="margin-top:10px">Добавить пирог</button>
+      <button type="button" onclick="addCake()" style="margin-top:10px">Добавить Выпечку</button>
     </div>
   </div>
 </section>

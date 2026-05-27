@@ -1,1081 +1,568 @@
-from pathlib import Path
-
-import re, subprocess, textwrap
-
-html = r'''<!doctype html>
-
+<!doctype html>
 <html lang="ru">
-
 <head>
-
 <meta charset="utf-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-
 <title>Калории</title>
-
 <style>
-
 :root{
-
   --bg:#0b1020;--card:#151e31;--card2:#1d2940;--line:#33415f;
-
   --text:#f5f7ff;--muted:#aeb9d4;--blue:#7ca7ff;--green:#78efb0;
-
   --yellow:#ffd36b;--red:#ff8585;--purple:#c9a2ff;
-
 }
-
 *{box-sizing:border-box}
-
 body{
-
   margin:0;padding:12px 12px 105px;background:
-
   radial-gradient(circle at 10% 0%,rgba(124,167,255,.22),transparent 30%),
-
   radial-gradient(circle at 90% 0%,rgba(201,162,255,.17),transparent 30%),
-
   linear-gradient(180deg,#0b1020,#070a12 70%);
-
   color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-
 }
-
 .wrap{max-width:820px;margin:0 auto}
-
 header{position:sticky;top:0;z-index:5;margin:-12px -12px 12px;padding:12px;background:rgba(11,16,32,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}
-
 h1{margin:4px 0 4px;font-size:25px;letter-spacing:-.5px}
-
 .sub{color:var(--muted);font-size:13px}
-
 .status{display:inline-block;margin-top:8px;padding:6px 9px;border-radius:999px;background:#3a1f25;color:#ffdada;border:1px solid #7a3b47;font-size:12px;font-weight:800}
-
 .status.ok{background:#102b1d;color:#d7ffe9;border-color:#2d7b50}
-
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
-
 button,select,input{
-
   width:100%;border-radius:15px;border:1px solid var(--line);background:#0e1525;color:var(--text);
-
   padding:12px;font-size:16px;outline:none;font-family:inherit
-
 }
-
 button{background:linear-gradient(180deg,#4f7dff,#385ee0);border-color:#6a8dff;font-weight:900;cursor:pointer}
-
 button.tab{background:rgba(255,255,255,.06);color:var(--muted);font-size:13px;padding:10px 4px}
-
 button.tab.active{background:linear-gradient(180deg,rgba(124,167,255,.36),rgba(124,167,255,.14));color:#fff;border-color:rgba(124,167,255,.8)}
-
 button.secondary{background:#25304a;border-color:#415172}
-
 button.danger{background:#47242d;border-color:#7a3b47;color:#ffe2e2}
-
 .screen{display:none}
-
 .screen.active{display:block}
-
 .grid{display:grid;gap:12px}
-
 .card{
-
   background:linear-gradient(180deg,rgba(21,30,49,.97),rgba(16,24,39,.97));
-
   border:1px solid rgba(255,255,255,.09);border-radius:22px;padding:14px;
-
   box-shadow:0 16px 40px rgba(0,0,0,.28)
-
 }
-
 h2{font-size:18px;margin:0 0 12px}
-
 label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}
-
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-
 @media(max-width:620px){.row,.row3{grid-template-columns:1fr}.tabs{gap:6px}button.tab{font-size:12px}}
-
 .people{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
 @media(max-width:620px){.people{grid-template-columns:1fr}}
-
 .person{background:var(--card2);border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:13px}
-
 .person.anya{background:radial-gradient(circle at 0% 0%,rgba(201,162,255,.20),transparent 36%),var(--card2)}
-
 .person.lesha{background:radial-gradient(circle at 0% 0%,rgba(124,167,255,.20),transparent 36%),var(--card2)}
-
 .personTop{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
-
 .name{font-size:19px;font-weight:950}
-
 .info{font-size:12px;color:var(--muted);margin-top:3px}
-
 .avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:950;background:linear-gradient(180deg,#7ca7ff,#426be9)}
-
 .anya .avatar{background:linear-gradient(180deg,#c9a2ff,#8f62e8)}
-
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-
 .metric{background:rgba(5,9,18,.40);border:1px solid rgba(255,255,255,.08);border-radius:17px;padding:11px;min-height:68px}
-
 .metric b{display:block;font-size:22px;line-height:1.05}
-
 .metric span{display:block;color:var(--muted);font-size:12px;margin-top:5px}
-
 .progress{height:13px;border-radius:999px;background:#080d18;overflow:hidden;border:1px solid rgba(255,255,255,.08);margin:10px 0}
-
 .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--yellow))}
-
 .note{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.35}
-
 .list{display:grid;gap:9px;margin-top:10px}
-
 .meal{display:grid;grid-template-columns:1fr 44px;gap:10px;align-items:center;background:rgba(5,9,18,.37);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:10px}
-
 .meal strong{font-size:15px}
-
 .meal small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:4px}
-
 .meal button{height:42px;padding:0;border-radius:14px;font-size:21px}
-
 .tag{display:inline-block;margin-right:6px;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:900;background:rgba(124,167,255,.18);color:#cfe0ff;border:1px solid rgba(124,167,255,.3)}
-
 .tag.anyaTag{background:rgba(201,162,255,.18);color:#eadbff;border-color:rgba(201,162,255,.32)}
-
 .preview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-
 .foodLine{background:rgba(5,9,18,.30);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px}
-
 .foodLine b{display:block;font-size:14px}
-
 .foodLine span{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:4px}
-
 .recipeLine{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed rgba(255,255,255,.14);padding:8px 0;color:var(--muted);font-size:13px}
-
 .recipeLine b{color:var(--text)}
-
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(7,10,18,.85);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.1);padding:9px 12px calc(9px + env(safe-area-inset-bottom))}
-
 .bottomInner{max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:9px}
-
 .bottomBox{background:var(--card);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:10px}
-
 .bottomName{font-size:13px;font-weight:950}
-
 .bottomNums{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-
 .bottomNums b{font-size:17px;display:block;line-height:1}
-
 .bottomNums span{font-size:10px;color:var(--muted)}
-
 .empty{padding:18px;text-align:center;color:var(--muted);font-size:14px}
-
 </style>
-
 </head>
-
 <body>
-
 <div class="wrap">
-
 <header>
-
   <h1>Калории</h1>
-
   <div class="sub">Аня + Лёша</div>
-
   <div id="status" class="status">Калькулятор не запущен</div>
-
   <div class="tabs">
-
     <button class="tab active" onclick="showTab('day')" type="button">День</button>
-
     <button class="tab" onclick="showTab('food')" type="button">Еда</button>
-
     <button class="tab" onclick="showTab('cake')" type="button">Пирог</button>
-
     <button class="tab" onclick="showTab('other')" type="button">Другое</button>
-
   </div>
-
 </header>
 
 <section id="day" class="screen active">
-
   <div class="grid">
-
     <div class="people">
-
       <div class="person lesha">
-
         <div class="personTop"><div><div class="name">Лёша</div><div class="info">22 • 191 см • 130 → 90 кг</div></div><div class="avatar">Л</div></div>
-
         <div class="metrics"><div class="metric"><b id="leshaTarget">—</b><span>цель</span></div><div class="metric"><b id="leshaLeft">—</b><span>осталось</span></div></div>
-
         <div class="progress"><div id="leshaBar" class="bar"></div></div>
-
         <div class="metrics"><div class="metric"><b id="leshaEaten">0</b><span>съедено</span></div><div class="metric"><b id="leshaMacros">0/0/0</b><span>Б / Ж / У</span></div></div>
-
       </div>
-
       <div class="person anya">
-
         <div class="personTop"><div><div class="name">Аня</div><div class="info">22 • 164 см • 95 → 60 кг</div></div><div class="avatar">А</div></div>
-
         <div class="metrics"><div class="metric"><b id="anyaTarget">—</b><span>цель</span></div><div class="metric"><b id="anyaLeft">—</b><span>осталось</span></div></div>
-
         <div class="progress"><div id="anyaBar" class="bar"></div></div>
-
         <div class="metrics"><div class="metric"><b id="anyaEaten">0</b><span>съедено</span></div><div class="metric"><b id="anyaMacros">0/0/0</b><span>Б / Ж / У</span></div></div>
-
       </div>
-
     </div>
 
     <div class="card">
-
       <h2>Норма</h2>
-
       <div class="row">
-
         <div><label>Активность Лёши</label><select id="leshaActivity" onchange="updateAll()"><option value="1.2">Почти нет</option><option value="1.375" selected>Лёгкая</option><option value="1.55">Средняя</option><option value="1.725">Высокая</option></select></div>
-
         <div><label>Активность Ани</label><select id="anyaActivity" onchange="updateAll()"><option value="1.2" selected>Почти нет</option><option value="1.375">Лёгкая</option><option value="1.55">Средняя</option><option value="1.725">Высокая</option></select></div>
-
       </div>
-
       <div class="row" style="margin-top:10px">
-
         <div><label>Дефицит Лёши</label><select id="leshaDeficit" onchange="updateAll()"><option value="300">−300</option><option value="500" selected>−500</option><option value="700">−700</option><option value="0">0</option></select></div>
-
         <div><label>Дефицит Ани</label><select id="anyaDeficit" onchange="updateAll()"><option value="300">−300</option><option value="500" selected>−500</option><option value="700">−700</option><option value="0">0</option></select></div>
-
       </div>
-
     </div>
 
     <div class="card">
-
       <h2>Сегодня</h2>
-
       <div class="row">
-
         <button class="secondary" type="button" onclick="copySummary()">Скопировать итог</button>
-
         <button class="danger" type="button" onclick="clearDay()">Очистить</button>
-
       </div>
-
       <div id="mealList" class="list"></div>
-
     </div>
-
   </div>
-
 </section>
 
 <section id="food" class="screen">
-
   <div class="grid">
-
     <div class="card">
-
       <h2>Еда</h2>
-
       <div class="row">
-
         <div><label>Кому</label><select id="foodMode" onchange="updateFoodPreview()"><option value="lesha">Лёше</option><option value="anya">Ане</option><option value="both_each" selected>Обоим: каждому</option><option value="both_split">Обоим: пополам</option></select></div>
-
         <div><label>Категория</label><select id="foodCat" onchange="fillFoods()"></select></div>
-
       </div>
-
       <div style="margin-top:10px"><label>Продукт</label><select id="foodItem" onchange="updateFoodPreview()"></select></div>
-
       <div class="row" style="margin-top:10px">
-
         <div><label id="foodQtyLabel">Количество</label><input id="foodQty" type="number" min="0" step="0.1" value="1" oninput="updateFoodPreview()"></div>
-
         <div><label>Доп. ккал</label><input id="foodExtra" type="number" min="0" step="1" value="0" oninput="updateFoodPreview()"></div>
-
       </div>
-
       <div class="preview"><div class="metric"><b id="foodKcal">—</b><span>ккал</span></div><div class="metric"><b id="foodMacros">—</b><span>Б / Ж / У</span></div></div>
-
       <button type="button" onclick="addFood()" style="margin-top:10px">Добавить</button>
-
       <div id="foodNote" class="note"></div>
-
     </div>
-
     <div class="card"><h2>База</h2><div id="baseList" class="list"></div></div>
-
   </div>
-
 </section>
 
 <section id="cake" class="screen">
-
   <div class="grid">
-
     <div class="card">
-
       <h2>Пирог</h2>
-
       <div class="row3">
-
         <div><label>Яйца, шт</label><input id="cakeEggs" type="number" value="4" min="0" step="1" oninput="updateCake()"></div>
-
         <div><label>Мука, г</label><input id="cakeFlour" type="number" value="160" min="0" step="1" oninput="updateCake()"></div>
-
         <div><label>Сахар, г</label><input id="cakeSugar" type="number" value="150" min="0" step="1" oninput="updateCake()"></div>
-
       </div>
-
       <div class="row3" style="margin-top:10px">
-
         <div><label>Молоко, мл</label><input id="cakeMilk" type="number" value="500" min="0" step="10" oninput="updateCake()"></div>
-
         <div><label>Пудинг, г</label><input id="cakePudding" type="number" value="40" min="0" step="1" oninput="updateCake()"></div>
-
         <div><label>Масло, г</label><input id="cakeButter" type="number" value="100" min="0" step="5" oninput="updateCake()"></div>
-
       </div>
-
       <div class="row" style="margin-top:10px">
-
         <div><label>Крем</label><select id="cakeCream" onchange="updateCake()"><option value="no">Без крема</option><option value="yes">С кремом</option></select></div>
-
         <div><label>Кусков всего</label><input id="cakeSlices" type="number" value="8" min="1" step="1" oninput="updateCake()"></div>
-
       </div>
-
       <div class="row" style="margin-top:10px">
-
         <div><label>Кому</label><select id="cakeMode" onchange="updateCake()"><option value="lesha">Лёше</option><option value="anya">Ане</option><option value="both_each" selected>Обоим: каждому</option><option value="both_split">Обоим: пополам</option></select></div>
-
         <div><label>Сколько кусков</label><input id="cakeEat" type="number" value="1" min="0" step="0.5" oninput="updateCake()"></div>
-
       </div>
-
       <div class="preview"><div class="metric"><b id="cakeTotal">—</b><span>весь пирог</span></div><div class="metric"><b id="cakeOne">—</b><span>1 кусок</span></div></div>
-
       <div class="preview"><div class="metric"><b id="cakeAdd">—</b><span>к добавлению</span></div><div class="metric"><b id="cakeMacro">—</b><span>Б / Ж / У</span></div></div>
-
       <div id="cakeLines" style="margin-top:10px"></div>
-
       <button type="button" onclick="addCake()" style="margin-top:10px">Добавить пирог</button>
-
     </div>
-
   </div>
-
 </section>
 
 <section id="other" class="screen">
-
   <div class="grid">
-
     <div class="card">
-
       <h2>Другое</h2>
-
       <div class="row">
-
         <div><label>Кому</label><select id="otherMode" onchange="updateOther()"><option value="lesha">Лёше</option><option value="anya">Ане</option><option value="both_each" selected>Обоим: каждому</option><option value="both_split">Обоим: пополам</option></select></div>
-
         <div><label>Название</label><input id="otherName" value="Продукт" oninput="updateOther()"></div>
-
       </div>
-
       <div class="row" style="margin-top:10px">
-
         <div><label>Единица</label><select id="otherUnit" onchange="updateOther()"><option>100 г</option><option>порция</option><option>штука</option><option>ломтик</option><option>ст. ложка</option></select></div>
-
         <div><label>Количество</label><input id="otherQty" type="number" min="0" step="0.1" value="1" oninput="updateOther()"></div>
-
       </div>
-
       <div class="row3" style="margin-top:10px">
-
         <div><label>Ккал</label><input id="otherKcal" type="number" value="100" min="0" step="1" oninput="updateOther()"></div>
-
         <div><label>Белки</label><input id="otherP" type="number" value="0" min="0" step="0.1" oninput="updateOther()"></div>
-
         <div><label>Жиры</label><input id="otherF" type="number" value="0" min="0" step="0.1" oninput="updateOther()"></div>
-
       </div>
-
       <div style="margin-top:10px"><label>Углеводы</label><input id="otherC" type="number" value="0" min="0" step="0.1" oninput="updateOther()"></div>
-
       <div class="preview"><div class="metric"><b id="otherAdd">—</b><span>ккал</span></div><div class="metric"><b id="otherMacro">—</b><span>Б / Ж / У</span></div></div>
-
       <button type="button" onclick="addOther()" style="margin-top:10px">Добавить другое</button>
-
     </div>
-
   </div>
-
 </section>
 
 </div>
 
 <footer class="bottom">
-
   <div class="bottomInner">
-
     <div class="bottomBox"><div class="bottomName">Лёша</div><div class="bottomNums"><div><b id="bottomLeshaEaten">0</b><span>съедено</span></div><div><b id="bottomLeshaLeft">—</b><span>осталось</span></div></div></div>
-
     <div class="bottomBox"><div class="bottomName">Аня</div><div class="bottomNums"><div><b id="bottomAnyaEaten">0</b><span>съедено</span></div><div><b id="bottomAnyaLeft">—</b><span>осталось</span></div></div></div>
-
   </div>
-
 </footer>
 
 <script>
-
 var people = {
-
   lesha:{name:"Лёша", sex:"male", age:22, height:191, weight:130},
-
   anya:{name:"Аня", sex:"female", age:22, height:164, weight:95}
-
 };
 
 var foods = [
-
   {cat:"Хлеб / выпечка",name:"Чешский белый тостовый хлеб",unit:"ломтик",kcal:70,p:2.4,f:0.9,c:13,note:"Средний ломтик 25–30 г."},
-
   {cat:"Крупы готовые",name:"Рис белый варёный",unit:"100 г",kcal:130,p:2.7,f:0.3,c:28.2,note:"Готовый вес."},
-
   {cat:"Крупы готовые",name:"Гречка варёная",unit:"100 г",kcal:92,p:3.4,f:0.6,c:20,note:"Готовый вес."},
-
   {cat:"Крупы готовые",name:"Кус-кус готовый",unit:"100 г",kcal:112,p:3.8,f:0.2,c:23.2,note:"Готовый вес."},
-
   {cat:"Крупы готовые",name:"Булгур готовый",unit:"100 г",kcal:83,p:3.1,f:0.2,c:18.6,note:"Готовый вес."},
-
   {cat:"Крупы готовые",name:"Пшено готовое",unit:"100 г",kcal:119,p:3.5,f:1,c:23.7,note:"Готовый вес."},
-
   {cat:"Мясо",name:"Жареная курятина средняя",unit:"100 г",kcal:230,p:26,f:13,c:1,note:"Обычная жарка."},
-
   {cat:"Мясо",name:"Куриная грудка жареная",unit:"100 г",kcal:190,p:31,f:6,c:0,note:"Грудка отдельно."},
-
   {cat:"Мясо",name:"Жареная свинина средняя",unit:"100 г",kcal:290,p:25,f:20,c:0,note:"Обычная жарка."},
-
   {cat:"Мясо",name:"Котлета домашняя жареная",unit:"100 г",kcal:260,p:17,f:18,c:7,note:"Домашнее значение."},
-
   {cat:"Яйца / молочка",name:"Яйцо куриное среднее",unit:"штука",kcal:74,p:6.3,f:5,c:0.4,note:"Среднее яйцо."},
-
   {cat:"Яйца / молочка",name:"Творог обычный",unit:"100 г",kcal:150,p:16,f:8,c:3,note:"Обычное значение."},
-
   {cat:"Яйца / молочка",name:"Йогурт белый",unit:"100 г",kcal:65,p:4,f:3,c:5,note:"Обычное значение."},
-
   {cat:"Картошка",name:"Картошка варёная",unit:"100 г",kcal:87,p:1.9,f:0.1,c:20,note:"Без масла."},
-
   {cat:"Картошка",name:"Пюре картофельное",unit:"100 г",kcal:110,p:2,f:4,c:17,note:"С молоком/маслом."},
-
   {cat:"Картошка",name:"Картошка в духовке",unit:"100 г",kcal:140,p:2.5,f:5,c:22,note:"Обычное значение."},
-
   {cat:"Картошка",name:"Картошка жареная",unit:"100 г",kcal:190,p:3,f:10,c:24,note:"Обычная жарка."},
-
   {cat:"Готовые блюда",name:"Суп домашний лёгкий",unit:"порция 300 г",kcal:180,p:10,f:7,c:20,note:"Тарелка 300 г."},
-
   {cat:"Готовые блюда",name:"Борщ / суп с мясом",unit:"порция 300 г",kcal:240,p:12,f:12,c:22,note:"Тарелка 300 г."},
-
   {cat:"Готовые блюда",name:"Паста с мясом / соусом",unit:"100 г",kcal:180,p:8,f:7,c:22,note:"Обычный соус."},
-
   {cat:"Готовые блюда",name:"Салат овощной без масла",unit:"100 г",kcal:35,p:1.5,f:0.3,c:7,note:"Без масла."},
-
   {cat:"Готовые блюда",name:"Салат с майонезом",unit:"100 г",kcal:200,p:5,f:16,c:9,note:"Обычное значение."},
-
   {cat:"Добавки",name:"Масло подсолнечное / оливковое",unit:"чайная ложка 5 г",kcal:45,p:0,f:5,c:0,note:"Масло."},
-
   {cat:"Добавки",name:"Майонез",unit:"столовая ложка 15 г",kcal:100,p:0.2,f:11,c:0.5,note:"Майонез."},
-
   {cat:"Добавки",name:"Кетчуп",unit:"столовая ложка 15 г",kcal:18,p:0.2,f:0,c:4,note:"Кетчуп."},
-
   {cat:"Добавки",name:"Сметана",unit:"столовая ложка 20 г",kcal:40,p:0.6,f:4,c:0.8,note:"Сметана."},
-
   {cat:"Добавки",name:"Сыр твёрдый",unit:"30 г",kcal:110,p:7,f:9,c:0.5,note:"Сыр."}
-
 ];
 
 var day = [];
-
 try {
-
   var saved = localStorage.getItem("calorie_anya_lesha_v3");
-
   if (saved) day = JSON.parse(saved) || [];
-
 } catch(e) { day = []; }
 
 function el(id){ return document.getElementById(id); }
-
 function num(id){ return Number(el(id).value) || 0; }
-
 function round(n){ return Math.round(Number(n) || 0); }
-
 function one(n){ return String(Math.round((Number(n)||0)*10)/10); }
-
 function safe(s){ return String(s).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch];}); }
 
 function save(){
-
   try { localStorage.setItem("calorie_anya_lesha_v3", JSON.stringify(day)); } catch(e) {}
-
 }
 
 function bmr(id){
-
   var p = people[id];
-
   var base = 10*p.weight + 6.25*p.height - 5*p.age;
-
   return p.sex === "male" ? base + 5 : base - 161;
-
 }
 
 function target(id){
-
   var activity = num(id+"Activity");
-
   var deficit = num(id+"Deficit");
-
   var floor = people[id].sex === "male" ? 1600 : 1300;
-
   return Math.max(floor, bmr(id)*activity - deficit);
-
 }
 
 function totals(id){
-
   var t = {kcal:0,p:0,f:0,c:0};
-
   for(var i=0;i<day.length;i++){
-
     if(day[i].person === id){
-
       t.kcal += Number(day[i].kcal)||0;
-
       t.p += Number(day[i].p)||0;
-
       t.f += Number(day[i].f)||0;
-
       t.c += Number(day[i].c)||0;
-
     }
-
   }
-
   return t;
-
 }
 
 function updatePerson(id){
-
   var t = totals(id);
-
   var tar = target(id);
-
   var left = tar - t.kcal;
-
   el(id+"Target").textContent = round(tar);
-
   el(id+"Eaten").textContent = round(t.kcal);
-
   el(id+"Left").textContent = round(left);
-
   el(id+"Macros").textContent = one(t.p)+"/"+one(t.f)+"/"+one(t.c);
 
   if(id === "lesha"){
-
     el("bottomLeshaEaten").textContent = round(t.kcal);
-
     el("bottomLeshaLeft").textContent = round(left);
-
   } else {
-
     el("bottomAnyaEaten").textContent = round(t.kcal);
-
     el("bottomAnyaLeft").textContent = round(left);
-
   }
 
   var pct = tar > 0 ? Math.max(0, Math.min(130, t.kcal/tar*100)) : 0;
-
   el(id+"Bar").style.width = pct + "%";
-
   el(id+"Bar").style.background = t.kcal <= tar ? "linear-gradient(90deg,var(--green),var(--yellow))" : "linear-gradient(90deg,var(--yellow),var(--red))";
-
 }
 
 function updateMeals(){
-
   var box = el("mealList");
-
   if(day.length === 0){
-
     box.innerHTML = '<div class="empty">Пока пусто</div>';
-
     return;
-
   }
-
   var html = "";
-
   for(var i=0;i<day.length;i++){
-
     var x = day[i];
-
     var isAnya = x.person === "anya";
-
     html += '<div class="meal"><div><strong><span class="tag '+(isAnya?'anyaTag':'')+'">'+(isAnya?'Аня':'Лёша')+'</span>'+safe(x.name)+'</strong><small>'+safe(x.amount)+' • '+round(x.kcal)+' ккал • Б '+one(x.p)+' / Ж '+one(x.f)+' / У '+one(x.c)+'</small></div><button class="danger" type="button" onclick="removeMeal('+i+')">×</button></div>';
-
   }
-
   box.innerHTML = html;
-
 }
 
 function updateAll(){
-
   updatePerson("lesha");
-
   updatePerson("anya");
-
   updateMeals();
-
   updateFoodPreview();
-
   updateCake();
-
   updateOther();
-
 }
 
 function showTab(id){
-
   var screens = document.querySelectorAll(".screen");
-
   for(var i=0;i<screens.length;i++) screens[i].classList.remove("active");
-
   el(id).classList.add("active");
 
   var tabs = document.querySelectorAll(".tab");
-
   for(var j=0;j<tabs.length;j++) tabs[j].classList.remove("active");
-
   var active = document.querySelector('.tab[onclick="showTab(\''+id+'\')"]');
-
   if(active) active.classList.add("active");
-
   window.scrollTo(0,0);
-
 }
 
 function categories(){
-
   var cats = [];
-
   for(var i=0;i<foods.length;i++){
-
     if(cats.indexOf(foods[i].cat) === -1) cats.push(foods[i].cat);
-
   }
-
   return cats;
-
 }
 
 function initFoods(){
-
   var cats = categories();
-
   var html = "";
-
   for(var i=0;i<cats.length;i++) html += '<option value="'+safe(cats[i])+'">'+safe(cats[i])+'</option>';
-
   el("foodCat").innerHTML = html;
-
   fillFoods();
 
   var list = "";
-
   for(var j=0;j<foods.length;j++){
-
     var f = foods[j];
-
     list += '<div class="foodLine"><b>'+safe(f.name)+'</b><span>'+f.kcal+' ккал / '+safe(f.unit)+' • Б '+f.p+' / Ж '+f.f+' / У '+f.c+'</span></div>';
-
   }
-
   el("baseList").innerHTML = list;
-
 }
 
 function fillFoods(){
-
   var cat = el("foodCat").value;
-
   var html = "";
-
   for(var i=0;i<foods.length;i++){
-
     if(foods[i].cat === cat) html += '<option value="'+i+'">'+safe(foods[i].name)+'</option>';
-
   }
-
   el("foodItem").innerHTML = html;
-
   updateFoodPreview();
-
 }
 
 function selectedFood(){
-
   var i = Number(el("foodItem").value) || 0;
-
   return foods[i] || foods[0];
-
 }
 
 function modeTargets(mode){
-
   if(mode === "lesha") return [{person:"lesha",factor:1}];
-
   if(mode === "anya") return [{person:"anya",factor:1}];
-
   if(mode === "both_split") return [{person:"lesha",factor:0.5},{person:"anya",factor:0.5}];
-
   return [{person:"lesha",factor:1},{person:"anya",factor:1}];
-
 }
 
 function modeMultiplier(mode){
-
   var arr = modeTargets(mode), m = 0;
-
   for(var i=0;i<arr.length;i++) m += arr[i].factor;
-
   return m;
-
 }
 
 function updateFoodPreview(){
-
   if(!el("foodItem") || !selectedFood()) return;
-
   var f = selectedFood();
-
   var qty = num("foodQty");
-
   var extra = num("foodExtra");
-
   var kcal = f.kcal*qty + extra;
-
   var mult = modeMultiplier(el("foodMode").value);
-
   el("foodQtyLabel").textContent = "Количество ("+f.unit+")";
-
   el("foodKcal").textContent = round(kcal*mult);
-
   el("foodMacros").textContent = one(f.p*qty*mult)+"/"+one(f.f*qty*mult)+"/"+one(f.c*qty*mult);
-
   el("foodNote").textContent = f.name + " — " + f.kcal + " ккал за " + f.unit + ". " + f.note;
-
 }
 
 function addEntries(mode,name,amount,kcal,p,f,c){
-
   var targets = modeTargets(mode);
-
   for(var i=0;i<targets.length;i++){
-
     var t = targets[i];
-
     day.push({
-
       person:t.person,
-
       name:name,
-
       amount:amount + (mode==="both_split" ? " (половина)" : ""),
-
       kcal:kcal*t.factor,
-
       p:p*t.factor,
-
       f:f*t.factor,
-
       c:c*t.factor
-
     });
-
   }
-
   save();
-
   updateAll();
-
   showTab("day");
-
 }
 
 function addFood(){
-
   var f = selectedFood();
-
   var qty = num("foodQty");
-
   var extra = num("foodExtra");
-
   if(qty <= 0 && extra <= 0) return;
-
   addEntries(
-
     el("foodMode").value,
-
     f.name,
-
     qty + " × " + f.unit + (extra>0 ? " + " + extra + " ккал" : ""),
-
     f.kcal*qty + extra,
-
     f.p*qty,
-
     f.f*qty,
-
     f.c*qty
-
   );
-
 }
 
 function cakeCalc(){
-
   var lines = [];
-
   lines.push({name:"Яйца",kcal:num("cakeEggs")*74,p:num("cakeEggs")*6.3,f:num("cakeEggs")*5,c:num("cakeEggs")*0.4});
-
   lines.push({name:"Мука",kcal:num("cakeFlour")*3.64,p:num("cakeFlour")*0.10,f:num("cakeFlour")*0.01,c:num("cakeFlour")*0.76});
-
   lines.push({name:"Сахар",kcal:num("cakeSugar")*3.87,p:0,f:0,c:num("cakeSugar")});
-
   if(el("cakeCream").value === "yes"){
-
     lines.push({name:"Молоко",kcal:num("cakeMilk")*0.55,p:num("cakeMilk")*0.033,f:num("cakeMilk")*0.025,c:num("cakeMilk")*0.048});
-
     lines.push({name:"Пудинг",kcal:num("cakePudding")*3.5,p:num("cakePudding")*0.01,f:num("cakePudding")*0.02,c:num("cakePudding")*0.85});
-
     lines.push({name:"Масло",kcal:num("cakeButter")*7.17,p:num("cakeButter")*0.008,f:num("cakeButter")*0.81,c:num("cakeButter")*0.006});
-
   }
-
   var total = {kcal:0,p:0,f:0,c:0};
-
   for(var i=0;i<lines.length;i++){ total.kcal+=lines[i].kcal; total.p+=lines[i].p; total.f+=lines[i].f; total.c+=lines[i].c; }
-
   var slices = Math.max(1,num("cakeSlices"));
-
   var eat = num("cakeEat");
-
   return {
-
     lines:lines,total:total,slices:slices,eat:eat,
-
     one:{kcal:total.kcal/slices,p:total.p/slices,f:total.f/slices,c:total.c/slices},
-
     add:{kcal:total.kcal/slices*eat,p:total.p/slices*eat,f:total.f/slices*eat,c:total.c/slices*eat}
-
   };
-
 }
 
 function updateCake(){
-
   if(!el("cakeTotal")) return;
-
   var r = cakeCalc();
-
   var mult = modeMultiplier(el("cakeMode").value);
-
   el("cakeTotal").textContent = round(r.total.kcal);
-
   el("cakeOne").textContent = round(r.one.kcal);
-
   el("cakeAdd").textContent = round(r.add.kcal*mult);
-
   el("cakeMacro").textContent = one(r.add.p*mult)+"/"+one(r.add.f*mult)+"/"+one(r.add.c*mult);
-
   var html = "";
-
   for(var i=0;i<r.lines.length;i++) html += '<div class="recipeLine"><span>'+safe(r.lines[i].name)+'</span><b>'+round(r.lines[i].kcal)+' ккал</b></div>';
-
   el("cakeLines").innerHTML = html;
-
 }
 
 function addCake(){
-
   var r = cakeCalc();
-
   if(r.eat <= 0) return;
-
   addEntries(
-
     el("cakeMode").value,
-
     el("cakeCream").value === "yes" ? "Бисквит с кремом" : "Бисквит",
-
     r.eat + " кус. из " + r.slices,
-
     r.add.kcal,r.add.p,r.add.f,r.add.c
-
   );
-
 }
 
 function updateOther(){
-
   if(!el("otherAdd")) return;
-
   var qty = num("otherQty");
-
   var kcal = num("otherKcal")*qty;
-
   var p = num("otherP")*qty;
-
   var f = num("otherF")*qty;
-
   var c = num("otherC")*qty;
-
   var mult = modeMultiplier(el("otherMode").value);
-
   el("otherAdd").textContent = round(kcal*mult);
-
   el("otherMacro").textContent = one(p*mult)+"/"+one(f*mult)+"/"+one(c*mult);
-
 }
 
 function addOther(){
-
   var qty = num("otherQty");
-
   if(qty <= 0) return;
-
   addEntries(
-
     el("otherMode").value,
-
     el("otherName").value || "Другое",
-
     qty + " × " + el("otherUnit").value,
-
     num("otherKcal")*qty,
-
     num("otherP")*qty,
-
     num("otherF")*qty,
-
     num("otherC")*qty
-
   );
-
 }
 
 function removeMeal(i){
-
   day.splice(i,1);
-
   save();
-
   updateAll();
-
 }
 
 function clearDay(){
-
   if(confirm("Очистить день?")){
-
     day = [];
-
     save();
-
     updateAll();
-
   }
-
 }
 
 function copySummary(){
-
   var lt=totals("lesha"), at=totals("anya");
-
   var text = "Лёша: "+round(lt.kcal)+"/"+round(target("lesha"))+" ккал, БЖУ "+one(lt.p)+"/"+one(lt.f)+"/"+one(lt.c)+"\nАня: "+round(at.kcal)+"/"+round(target("anya"))+" ккал, БЖУ "+one(at.p)+"/"+one(at.f)+"/"+one(at.c);
-
   if(navigator.clipboard && navigator.clipboard.writeText){
-
     navigator.clipboard.writeText(text).then(function(){alert("Скопировано");},function(){prompt("Скопируй:",text);});
-
   } else {
-
     prompt("Скопируй:",text);
-
   }
-
 }
 
 function boot(){
-
   initFoods();
-
   updateAll();
-
   el("status").textContent = "Калькулятор запущен";
-
   el("status").className = "status ok";
-
 }
 
 boot();
-
 </script>
-
 </body>
-
 </html>
-
-'''
-
-path = Path("/mnt/data/kalorii_anya_lesha_v3_working.html")
-
-path.write_text(html, encoding="utf-8")
-
-# check JS syntax with node
-
-script = re.search(r"<script>(.*?)</script>", html, flags=re.S).group(1)
-
-js_path = Path("/mnt/data/kalorii_anya_lesha_v3_working.js")
-
-js_path.write_text(script, encoding="utf-8")
-
-try:
-
-    res = subprocess.run(["node", "--check", str(js_path)], capture_output=True, text=True, timeout=10)
-
-    print("Файл:", path.name)
-
-    print("Проверка JS:", "OK" if res.returncode == 0 else res.stderr)
-
-except Exception as e:
-
-    print("Файл:", path.name)
-
-    print("Проверка JS недоступна:", e)
